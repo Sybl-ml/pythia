@@ -9,8 +9,11 @@ struct Handler;
 
 impl EventHandler for Handler {
     fn message(&self, context: Context, msg: Message) {
-        if msg.content == "!ping" {
-            let _ = msg.channel_id.say(&context, "Pong!");
+        if msg.content == "whoami" {
+            let private_channel_id = msg.author.create_dm_channel(&context).unwrap().id;
+            let response = format!("You are {}#{}", msg.author.name, msg.author.discriminator);
+            let private_message = private_channel_id.say(&context, response).unwrap();
+            let reaction = private_message.react(&context, '\u{2764}');
         }
     }
 }

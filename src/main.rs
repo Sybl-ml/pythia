@@ -1,6 +1,7 @@
 use serenity::client::Client;
 use serenity::model::channel::Message;
 use serenity::prelude::{Context, EventHandler};
+use serenity::utils::Colour;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -41,7 +42,11 @@ fn create_poll(context: &Context, msg: &Message, args: &[&str]) {
     let sent_message = msg
         .channel_id
         .send_message(context, |m| {
-            m.embed(|e| e.title(title.to_uppercase()).description(formatted_options))
+            m.embed(|e| {
+                e.title(title.to_uppercase())
+                    .description(formatted_options)
+                    .colour(Colour::from_rgb(0, 106, 176))
+            })
         })
         .unwrap();
 

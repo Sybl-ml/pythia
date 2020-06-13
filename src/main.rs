@@ -67,12 +67,13 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
 ///
 /// Messages are now formatted to appear clear and readable in a discord 
 /// channel. Future versions may also supply a markdown output.
-fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
+fn minutes(context: &mut Context, msg: &Message) {
+    let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
     let day = NaiveDate::parse_from_str(args[0], "%d/%m/%Y").unwrap();
 
     let messages = msg
         .channel_id
-        .messages(context, |b| {
+        .messages(&context, |b| {
             b.limit(1000)
         })
         .unwrap();
@@ -88,7 +89,7 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
 
     let _sent_message = msg
         .channel_id
-        .send_message(context, |m| {
+        .send_message(&context, |m| {
             m.content(format!(
                 "**Meeting minutes for {}** \n{}",
                 args[0],
@@ -97,6 +98,7 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
         })
         .unwrap();
 
+    Ok(())
 }
 
 #[group]

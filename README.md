@@ -1,7 +1,12 @@
-# FT2 Helper
+# Pythia
 
-FT2 Helper is a Discord bot written in Rust to add functionality to our Discord
+Pythia is a Discord bot written in Rust to add functionality to our Discord
 server while providing a way to learn Rust.
+
+It is named after [Pythia](https://en.wikipedia.org/wiki/Pythia), who was the
+[Oracle](https://en.wikipedia.org/wiki/Oracle) of
+[Delphi](https://en.wikipedia.org/wiki/Delphi). It aims to provide
+functionality such as poll creation and meeting minute recording.
 
 ## Development
 

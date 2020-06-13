@@ -58,11 +58,11 @@ fn create_poll(context: &Context, msg: &Message, args: &[&str]) {
 
 /// Returns all messages from a given day in a given channel
 ///
-/// Given a command such as `!minutes Date`, where Date follows the format d/m/Y, 
-/// this will be called with the arguments `[Date]`.
+/// Given the command `!minutes Date`, where Date follows the format D/M/Y, 
+/// this function will be called with the arguments `[Date]`.
 ///
-/// Messages are currently completely unformatted. Future releases should format
-/// messages nicely into a markdown format, or similar.
+/// Messages are now formatted to appear clear and readable in a discord 
+/// channel. Future versions may also supply a markdown output.
 fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
     let day = NaiveDate::parse_from_str(args[0], "%d/%m/%Y").unwrap();
 
@@ -81,8 +81,6 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
             x.author.name.replace("*", ""), 
             x.content.replace("*", "")
         )).rev().collect::<String>();
-
-    // TODO: format these messages nicely
 
     let _sent_message = msg
         .channel_id

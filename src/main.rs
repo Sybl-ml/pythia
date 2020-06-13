@@ -76,7 +76,8 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
     let relevant = messages.iter()
         .filter(|x| x.timestamp.naive_local().date() == day)
         .map(|x| format!(
-            "\n**{}**:\t*{}*\n", 
+            "\n{}\t**{}**:\t*{}*\n", 
+            x.timestamp.time().format("%H:%M").to_string(),
             x.author.name.replace("*", ""), 
             x.content.replace("*", "")
         )).rev().collect::<String>();
@@ -87,7 +88,7 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
         .channel_id
         .send_message(context, |m| {
             m.content(format!(
-                "# Meeting minutes for {} {}\n",
+                "**Meeting minutes for {}** \n{}",
                 args[0],
                 relevant
             ))

@@ -67,6 +67,7 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
 ///
 /// Messages are now formatted to appear clear and readable in a discord 
 /// channel. Future versions may also supply a markdown output.
+#[command]
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
     let day = NaiveDate::parse_from_str(args[0], "%d/%m/%Y").unwrap();

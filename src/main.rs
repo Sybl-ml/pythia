@@ -75,7 +75,7 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
 
     let relevant = messages.iter()
         .filter(|x| x.timestamp.naive_local().date() == day)
-        .map(|x| x.content.clone())
+        .map(|x| format!("\n*{}*:\t{}\n", x.author.name, x.content))
         .collect::<String>();
 
     // TODO: format these messages nicely

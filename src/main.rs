@@ -103,7 +103,7 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
 }
 
 #[group]
-#[commands(poll)]
+#[commands(poll, minutes)]
 struct General;
 struct Handler;
 

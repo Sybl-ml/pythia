@@ -79,7 +79,7 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
             "\n**{}**:\t*{}*\n", 
             x.author.name.replace("*", ""), 
             x.content.replace("*", "")
-        )).collect::<String>();
+        )).rev().collect::<String>();
 
     // TODO: format these messages nicely
 
@@ -87,7 +87,7 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
         .channel_id
         .send_message(context, |m| {
             m.content(format!(
-                "# Meeting minutes for {} {}",
+                "# Meeting minutes for {} {}\n",
                 args[0],
                 relevant
             ))

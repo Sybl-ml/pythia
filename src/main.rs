@@ -1,7 +1,9 @@
 use serenity::client::Client;
 use serenity::model::channel::Message;
+use serenity::model::channel::Group;
 use serenity::prelude::{Context, EventHandler};
 use serenity::utils::Colour;
+use chrono::NaiveDateTime;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -55,6 +57,39 @@ fn create_poll(context: &Context, msg: &Message, args: &[&str]) {
     }
 }
 
+/// Returns all messages from a given day in a given channel
+///
+/// Given a command such as `!minutes Date`, where Date follows the format d/m/Y, 
+/// this will be called with the arguments `[Date]`.
+///
+/// Messages are currently completely unformatted. Future releases should format
+/// messages nicely into a markdown format, or similar.
+fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
+    let day = NaiveDateTime::parse_from_str(args[0], "%d/%m/%Y").date();
+
+    let messages = msg
+        .channel_id
+        .messages(context, |b| {
+            b.limit(1000)
+        })
+        .unwrap();
+
+    let relevant = messages.iter()
+        .filter(|x| x.timestamp.date() == day)
+        .map(|x| x.content)
+        .collect::<String>();
+
+    // TODO: format these messages nicely
+
+    let sent_message = msg
+        .channel_id
+        .send_message(context, |m| {
+            m.content(relevant);
+        })
+        .unwrap();
+
+}
+
 /// Parses a command from a message and dispatches to the correct handler.
 ///
 /// Given a message that begins with PREFIX, this will split the command into tokens by spaces and
@@ -66,6 +101,7 @@ fn dispatch(context: &Context, msg: &Message) {
 
     match &command[1..] {
         "poll" => create_poll(context, msg, &args),
+        "minutes" => get_minutes(context, msg, &args),
         // TODO: Respond with some kind of message or ignore this //
         _ => println!("Unknown command"),
     }

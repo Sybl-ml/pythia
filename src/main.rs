@@ -1,4 +1,6 @@
 use serenity::client::Client;
+use serenity::framework::standard::macros::{command, group};
+use serenity::framework::standard::{CommandResult, StandardFramework};
 use serenity::model::channel::Message;
 use serenity::prelude::{Context, EventHandler};
 use serenity::utils::Colour;
@@ -6,10 +8,8 @@ use chrono::NaiveDate;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-struct Handler;
-
 /// The prefix for commands such as `!poll`.
-const PREFIX: char = '!';
+const PREFIX: &str = "!";
 /// Unicode encodings for the emojis 1-9 to react with on poll messages.
 const REACTIONS: [&str; 9] = [
     "\u{31}\u{FE0F}\u{20E3}",
@@ -30,7 +30,9 @@ const REACTIONS: [&str; 9] = [
 ///
 /// Poll messages use an embedded message for nicer formatting, and add reactions for each option
 /// that the poll provides.
-fn create_poll(context: &Context, msg: &Message, args: &[&str]) {
+#[command]
+fn poll(context: &mut Context, msg: &Message) -> CommandResult {
+    let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
     let (title, options) = args.split_first().unwrap();
 
     let formatted_options = options
@@ -42,7 +44,7 @@ fn create_poll(context: &Context, msg: &Message, args: &[&str]) {
 
     let sent_message = msg
         .channel_id
-        .send_message(context, |m| {
+        .send_message(&context, |m| {
             m.embed(|e| {
                 e.title(title.to_uppercase())
                     .description(formatted_options)
@@ -52,8 +54,10 @@ fn create_poll(context: &Context, msg: &Message, args: &[&str]) {
         .unwrap();
 
     for reaction in REACTIONS.iter().take(options.len()) {
-        while let Err(_) = sent_message.react(context, *reaction) {}
+        sent_message.react(&context, *reaction)?;
     }
+
+    Ok(())
 }
 
 /// Returns all messages from a given day in a given channel
@@ -95,34 +99,12 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
 
 }
 
-/// Parses a command from a message and dispatches to the correct handler.
-///
-/// Given a message that begins with PREFIX, this will split the command into tokens by spaces and
-/// dispatch the arguments to the appropriate handler function. The command is interpreted as the
-/// first element of the vector with the arguments as the remaining portion.
-fn dispatch(context: &Context, msg: &Message) {
-    let tokens: Vec<&str> = msg.content.split(' ').collect();
-    let (command, args) = tokens.split_first().unwrap();
+#[group]
+#[commands(poll)]
+struct General;
+struct Handler;
 
-    match &command[1..] {
-        "poll" => create_poll(context, msg, &args),
-        "minutes" => get_minutes(context, msg, &args),
-        // TODO: Respond with some kind of message or ignore this //
-        _ => println!("Unknown command"),
-    }
-}
-
-impl EventHandler for Handler {
-    /// Registers a handler for a message being received.
-    fn message(&self, context: Context, msg: Message) {
-        // Check whether we have the correct prefix, otherwise ignore
-        if let Some(first) = msg.content.chars().next() {
-            if first == PREFIX {
-                dispatch(&context, &msg);
-            }
-        }
-    }
-}
+impl EventHandler for Handler {}
 
 fn main() -> Result<()> {
     // Read the token file into environment variables
@@ -131,6 +113,11 @@ fn main() -> Result<()> {
 
     // Start the client with the token and the handler struct
     let mut client = Client::new(token, Handler)?;
+    client.with_framework(
+        StandardFramework::new()
+            .configure(|c| c.prefix(PREFIX))
+            .group(&GENERAL_GROUP),
+    );
     client.start()?;
 
     Ok(())

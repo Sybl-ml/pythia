@@ -1,6 +1,5 @@
 use serenity::client::Client;
 use serenity::model::channel::Message;
-use serenity::model::channel::Group;
 use serenity::prelude::{Context, EventHandler};
 use serenity::utils::Colour;
 use chrono::NaiveDateTime;
@@ -65,7 +64,9 @@ fn create_poll(context: &Context, msg: &Message, args: &[&str]) {
 /// Messages are currently completely unformatted. Future releases should format
 /// messages nicely into a markdown format, or similar.
 fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
-    let day = NaiveDateTime::parse_from_str(args[0], "%d/%m/%Y").date();
+    let day = NaiveDateTime::parse_from_str(args[0], "%d/%m/%Y")
+	.unwrap()
+	.date();
 
     let messages = msg
         .channel_id
@@ -75,16 +76,16 @@ fn get_minutes(context: &Context, msg: &Message, args: &[&str]) {
         .unwrap();
 
     let relevant = messages.iter()
-        .filter(|x| x.timestamp.date() == day)
-        .map(|x| x.content)
+        .filter(|x| x.timestamp.naive_local().date() == day)
+        .map(|x| x.content.clone())
         .collect::<String>();
 
     // TODO: format these messages nicely
 
-    let sent_message = msg
+    let _sent_message = msg
         .channel_id
         .send_message(context, |m| {
-            m.content(relevant);
+            m.content(relevant)
         })
         .unwrap();
 

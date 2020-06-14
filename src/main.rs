@@ -71,14 +71,14 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
 #[command]
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
-    let day = NaiveDate::parse_from_str(args[0], "%d/%m/%Y").unwrap();
+    let day: NaiveDate = NaiveDate::parse_from_str(args[0], "%d/%m/%Y").unwrap();
 
-    let messages = msg
+    let messages: Vec<Message> = msg
         .channel_id
         .messages(&context, |b| b.limit(1000))
         .unwrap();
 
-    let relevant = messages
+    let relevant: String = messages
         .iter()
         .filter(|x| x.timestamp.naive_local().date() == day)
         .map(|x| {

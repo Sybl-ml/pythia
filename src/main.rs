@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use serenity::client::Client;
 use serenity::framework::standard::macros::{command, group};
 use serenity::framework::standard::{CommandResult, StandardFramework};
@@ -59,8 +60,50 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
+/// Returns all messages from a given day in a given channel.
+///
+/// Given the command `!minutes <date>`, where <date> follows the format d/m/Y, this handler will
+/// collect the messages sent on that date and format them into a structured Markdown document,
+/// before sending it back to the caller.
+#[command]
+fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
+    let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
+    let day = NaiveDate::parse_from_str(args[0], "%d/%m/%Y").unwrap();
+
+    let messages = msg
+        .channel_id
+        .messages(&context, |b| b.limit(1000))
+        .unwrap();
+
+    let relevant = messages
+        .iter()
+        .filter(|x| x.timestamp.naive_local().date() == day)
+        .map(|x| {
+            format!(
+                "\n{}\t**{}**:\t*{}*\n",
+                x.timestamp.time().format("%H:%M").to_string(),
+                x.author.name.replace("*", ""),
+                x.content.replace("*", "")
+            )
+        })
+        .rev()
+        .collect::<String>();
+
+    let _sent_message = msg
+        .channel_id
+        .send_message(&context, |m| {
+            m.content(format!(
+                "**Meeting minutes for {}** \n{}",
+                args[0], relevant
+            ))
+        })
+        .unwrap();
+
+    Ok(())
+}
+
 #[group]
-#[commands(poll)]
+#[commands(poll, minutes)]
 struct General;
 struct Handler;
 

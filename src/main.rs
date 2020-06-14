@@ -1,10 +1,10 @@
+use chrono::NaiveDate;
 use serenity::client::Client;
 use serenity::framework::standard::macros::{command, group};
 use serenity::framework::standard::{CommandResult, StandardFramework};
 use serenity::model::channel::Message;
 use serenity::prelude::{Context, EventHandler};
 use serenity::utils::Colour;
-use chrono::NaiveDate;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -62,10 +62,10 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
 
 /// Returns all messages from a given day in a given channel
 ///
-/// Given the command `!minutes Date`, where Date follows the format D/M/Y, 
+/// Given the command `!minutes Date`, where Date follows the format D/M/Y,
 /// this function will be called with the arguments `[Date]`.
 ///
-/// Messages are now formatted to appear clear and readable in a discord 
+/// Messages are now formatted to appear clear and readable in a discord
 /// channel. Future versions may also supply a markdown output.
 #[command]
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
@@ -74,27 +74,29 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
 
     let messages = msg
         .channel_id
-        .messages(&context, |b| {
-            b.limit(1000)
-        })
+        .messages(&context, |b| b.limit(1000))
         .unwrap();
 
-    let relevant = messages.iter()
+    let relevant = messages
+        .iter()
         .filter(|x| x.timestamp.naive_local().date() == day)
-        .map(|x| format!(
-            "\n{}\t**{}**:\t*{}*\n", 
-            x.timestamp.time().format("%H:%M").to_string(),
-            x.author.name.replace("*", ""), 
-            x.content.replace("*", "")
-        )).rev().collect::<String>();
+        .map(|x| {
+            format!(
+                "\n{}\t**{}**:\t*{}*\n",
+                x.timestamp.time().format("%H:%M").to_string(),
+                x.author.name.replace("*", ""),
+                x.content.replace("*", "")
+            )
+        })
+        .rev()
+        .collect::<String>();
 
     let _sent_message = msg
         .channel_id
         .send_message(&context, |m| {
             m.content(format!(
                 "**Meeting minutes for {}** \n{}",
-                args[0],
-                relevant
+                args[0], relevant
             ))
         })
         .unwrap();

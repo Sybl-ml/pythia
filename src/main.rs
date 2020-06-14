@@ -60,13 +60,11 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
-/// Returns all messages from a given day in a given channel
+/// Returns all messages from a given day in a given channel.
 ///
-/// Given the command `!minutes Date`, where Date follows the format D/M/Y,
-/// this function will be called with the arguments `[Date]`.
-///
-/// Messages are now formatted to appear clear and readable in a discord
-/// channel. Future versions may also supply a markdown output.
+/// Given the command `!minutes <date>`, where <date> follows the format d/m/Y, this handler will
+/// collect the messages sent on that date and format them into a structured Markdown document,
+/// before sending it back to the caller.
 #[command]
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(" ").skip(1).collect();

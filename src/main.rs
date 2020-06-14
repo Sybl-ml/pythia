@@ -107,11 +107,15 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
 
 /// Forwards a message to the `#resources` channel.
 ///
-/// Given the command `!resource <message>`, this handler will forward <message> to the 
+/// Given the command `!resource <message>`, this handler will forward <message> to the
 /// `#resources` channel with a short preamble.
 #[command]
 fn resource(context: &mut Context, msg: &Message) -> CommandResult {
-    let resource: String = msg.content.chars().skip_while(|c| c != &' ').collect::<String>();
+    let resource: String = msg
+        .content
+        .chars()
+        .skip_while(|c| c != &' ')
+        .collect::<String>();
 
     let _sent_message = RESOURCES_CHANNEL
         .send_message(&context, |m| {

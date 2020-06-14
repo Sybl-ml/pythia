@@ -24,7 +24,7 @@ const REACTIONS: [&str; 9] = [
     "\u{39}\u{FE0F}\u{20E3}",
 ];
 /// The ChannelId associated with the server's `#resources` channel.
-const RESOURCES_CHANNEL: ChannelId = ChannelId(721376048922493048);
+const RESOURCES_CHANNEL: ChannelId = ChannelId(719260683782455377);
 
 /// Creates a poll message and sends it to the user.
 ///

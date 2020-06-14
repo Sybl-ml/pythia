@@ -3,6 +3,7 @@ use serenity::client::Client;
 use serenity::framework::standard::macros::{command, group};
 use serenity::framework::standard::{CommandResult, StandardFramework};
 use serenity::model::channel::Message;
+use serenity::model::id::ChannelId;
 use serenity::prelude::{Context, EventHandler};
 use serenity::utils::Colour;
 
@@ -22,6 +23,8 @@ const REACTIONS: [&str; 9] = [
     "\u{38}\u{FE0F}\u{20E3}",
     "\u{39}\u{FE0F}\u{20E3}",
 ];
+/// The ChannelId associated with the server's `#resources` channel.
+const RESOURCES_CHANNEL: ChannelId = ChannelId(721376048922493048);
 
 /// Creates a poll message and sends it to the user.
 ///
@@ -102,8 +105,29 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
+/// Forwards a message to the `#resources` channel.
+///
+/// Given the command `!resource <message>`, this handler will forward <message> to the 
+/// `#resources` channel with a short preamble.
+#[command]
+fn resource(context: &mut Context, msg: &Message) -> CommandResult {
+    let resource: String = msg.content.chars().skip_while(|c| c != &' ').collect::<String>();
+
+    let _sent_message = RESOURCES_CHANNEL
+        .send_message(&context, |m| {
+            m.content(format!(
+                "**{}** submitted the following resource:\n > {}",
+                msg.author.name.replace("*", ""),
+                resource
+            ))
+        })
+        .unwrap();
+
+    Ok(())
+}
+
 #[group]
-#[commands(poll, minutes)]
+#[commands(poll, minutes, resource)]
 struct General;
 struct Handler;
 

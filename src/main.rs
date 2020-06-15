@@ -37,7 +37,7 @@ const REACTIONS: [&str; 9] = [
 /// that the poll provides.
 #[command]
 fn poll(context: &mut Context, msg: &Message) -> CommandResult {
-    let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
+    let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
     let (title, options) = args
         .split_first()
         .ok_or("Invalid number of arguments to !poll")?;
@@ -71,7 +71,7 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
 /// before sending it back to the caller.
 #[command]
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
-    let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
+    let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
     let day: NaiveDate = NaiveDate::parse_from_str(args[0], "%d/%m/%Y")?;
     let messages: Vec<Message> = msg.channel_id.messages(&context, |b| b.limit(1000))?;
 

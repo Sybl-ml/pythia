@@ -3,6 +3,7 @@ use serenity::client::Client;
 use serenity::framework::standard::macros::{command, group};
 use serenity::framework::standard::{CommandResult, StandardFramework};
 use serenity::model::channel::Message;
+use serenity::model::id::ChannelId;
 use serenity::prelude::{Context, EventHandler};
 use serenity::utils::Colour;
 
@@ -68,14 +69,14 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
 #[command]
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
-    let day = NaiveDate::parse_from_str(args[0], "%d/%m/%Y").unwrap();
+    let day: NaiveDate = NaiveDate::parse_from_str(args[0], "%d/%m/%Y").unwrap();
 
-    let messages = msg
+    let messages: Vec<Message> = msg
         .channel_id
         .messages(&context, |b| b.limit(1000))
         .unwrap();
 
-    let relevant = messages
+    let relevant: String = messages
         .iter()
         .filter(|x| x.timestamp.naive_local().date() == day)
         .map(|x| {
@@ -102,8 +103,44 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
+/// Forwards a message to the `#resources` channel.
+///
+/// Given the command `!resource <message>`, this handler will forward <message> to the
+/// `#resources` channel with a short preamble.
+#[command]
+fn resource(context: &mut Context, msg: &Message) -> CommandResult {
+    let resource: String = msg
+        .content
+        .chars()
+        .skip_while(|c| c != &' ')
+        .collect::<String>();
+
+    let resources_channel: ChannelId = msg
+        .guild_id
+        .unwrap()
+        .channels(&context)
+        .unwrap()
+        .values()
+        .filter(|x| x.name == "resources")
+        .next()
+        .unwrap()
+        .id;
+
+    let _sent_message = resources_channel
+        .send_message(&context, |m| {
+            m.content(format!(
+                "**{}** submitted the following resource:\n > {}",
+                msg.author.name.replace("*", ""),
+                resource
+            ))
+        })
+        .unwrap();
+
+    Ok(())
+}
+
 #[group]
-#[commands(poll, minutes)]
+#[commands(poll, minutes, resource)]
 struct General;
 struct Handler;
 

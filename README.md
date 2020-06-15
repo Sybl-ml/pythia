@@ -6,7 +6,8 @@ server while providing a way to learn Rust.
 It is named after [Pythia](https://en.wikipedia.org/wiki/Pythia), who was the
 [Oracle](https://en.wikipedia.org/wiki/Oracle) of
 [Delphi](https://en.wikipedia.org/wiki/Delphi). It aims to provide
-functionality such as poll creation and meeting minute recording.
+functionality such as poll creation, meeting minute recording and resource 
+cataloguing.
 
 ## Development
 
@@ -29,7 +30,7 @@ instructions:
 
 Now that the bot exists, you can add it to a server to begin testing it. The
 easiest way to do this is to create a private server for you and the bot before
-you let it loose publically.
+you let it loose publicly.
 
 - Navigate to the `OAuth2` tab
 - Under `Scopes`, check the `bot` tickbox

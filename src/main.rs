@@ -1,3 +1,6 @@
+use std::fs;
+use std::io::Write;
+
 use chrono::NaiveDate;
 use serenity::client::Client;
 use serenity::framework::standard::macros::{command, group};
@@ -69,7 +72,6 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
     let day: NaiveDate = NaiveDate::parse_from_str(args[0], "%d/%m/%Y")?;
-
     let messages: Vec<Message> = msg.channel_id.messages(&context, |b| b.limit(1000))?;
 
     let relevant: String = messages
@@ -86,12 +88,21 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
         .rev()
         .collect::<String>();
 
-    msg.channel_id.send_message(&context, |m| {
-        m.content(format!(
-            "**Meeting minutes for {}** \n{}",
-            args[0], relevant
-        ))
-    })?;
+    let formatted_minutes = format!("**Meeting minutes for {}** \n{}", args[0], relevant);
+
+    // Overwrite any existing data in the file with the new minutes
+    let mut file = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open("minutes.md")?;
+
+    write!(file, "{}", formatted_minutes)?;
+
+    msg.channel_id
+        .send_files(&context, vec![(&file, "minutes.md")], |m| {
+            m.content(format!("Meeting minutes for {}", day))
+        })?;
 
     Ok(())
 }
@@ -131,7 +142,7 @@ fn resource(context: &mut Context, msg: &Message) -> CommandResult {
 }
 
 #[group]
-#[commands(poll, minutes, resource)]
+#[commands(minutes, poll, resource)]
 struct General;
 struct Handler;
 

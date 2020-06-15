@@ -68,12 +68,9 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
 #[command]
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
-    let day: NaiveDate = NaiveDate::parse_from_str(args[0], "%d/%m/%Y").unwrap();
+    let day: NaiveDate = NaiveDate::parse_from_str(args[0], "%d/%m/%Y")?;
 
-    let messages: Vec<Message> = msg
-        .channel_id
-        .messages(&context, |b| b.limit(1000))
-        .unwrap();
+    let messages: Vec<Message> = msg.channel_id.messages(&context, |b| b.limit(1000))?;
 
     let relevant: String = messages
         .iter()
@@ -89,15 +86,12 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
         .rev()
         .collect::<String>();
 
-    let _sent_message = msg
-        .channel_id
-        .send_message(&context, |m| {
-            m.content(format!(
-                "**Meeting minutes for {}** \n{}",
-                args[0], relevant
-            ))
-        })
-        .unwrap();
+    msg.channel_id.send_message(&context, |m| {
+        m.content(format!(
+            "**Meeting minutes for {}** \n{}",
+            args[0], relevant
+        ))
+    })?;
 
     Ok(())
 }

@@ -102,32 +102,30 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
 /// `#resources` channel with a short preamble.
 #[command]
 fn resource(context: &mut Context, msg: &Message) -> CommandResult {
-    let resource: String = msg
+    let first_space = msg
         .content
         .chars()
-        .skip_while(|c| c != &' ')
-        .collect::<String>();
+        .position(|c| c == ' ')
+        .ok_or("Command has no arguments")?;
+
+    let resource = &msg.content[first_space + 1..];
 
     let resources_channel: ChannelId = msg
         .guild_id
-        .unwrap()
-        .channels(&context)
-        .unwrap()
+        .ok_or("Message occurred outside of a Guild environment.")?
+        .channels(&context)?
         .values()
-        .filter(|x| x.name == "resources")
-        .next()
-        .unwrap()
+        .find(|x| x.name == "resources")
+        .ok_or("Failed to find a channel with the name: 'resources'")?
         .id;
 
-    let _sent_message = resources_channel
-        .send_message(&context, |m| {
-            m.content(format!(
-                "**{}** submitted the following resource:\n > {}",
-                msg.author.name.replace("*", ""),
-                resource
-            ))
-        })
-        .unwrap();
+    resources_channel.send_message(&context, |m| {
+        m.content(format!(
+            "**{}** submitted the following resource:\n> {}",
+            msg.author.name.replace("*", ""),
+            resource
+        ))
+    })?;
 
     Ok(())
 }

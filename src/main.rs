@@ -1,9 +1,11 @@
 use std::fs;
+use std::path::Path;
 
 use chrono::NaiveDate;
 use serenity::client::Client;
 use serenity::framework::standard::macros::{command, group};
 use serenity::framework::standard::{CommandResult, StandardFramework};
+use serenity::http::AttachmentType;
 use serenity::model::channel::Message;
 use serenity::model::id::ChannelId;
 use serenity::prelude::{Context, EventHandler};
@@ -88,13 +90,15 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
         .collect::<String>();
 
     let formatted_minutes = format!("**Meeting minutes for {}** \n{}", args[0], relevant);
+    let filename = format!("minutes-{}.md", day.format("%Y-%m-%d"));
+    let path = Path::new(&filename);
 
     // Remove the file if it exists, then write the formatted minutes to it
-    let _ = fs::remove_file("minutes.md")?;
-    fs::write("minutes.md", formatted_minutes)?;
+    let _ = fs::remove_file(&path);
+    fs::write(&path, formatted_minutes)?;
 
     msg.channel_id
-        .send_files(&context, vec!["minutes.md"], |m| {
+        .send_files(&context, vec![AttachmentType::Path(&path)], |m| {
             m.content(format!("Meeting minutes for {}", day))
         })?;
 

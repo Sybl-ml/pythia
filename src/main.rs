@@ -1,5 +1,4 @@
 use std::fs;
-use std::io::Write;
 
 use chrono::NaiveDate;
 use serenity::client::Client;
@@ -90,17 +89,12 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
 
     let formatted_minutes = format!("**Meeting minutes for {}** \n{}", args[0], relevant);
 
-    // Overwrite any existing data in the file with the new minutes
-    let mut file = fs::OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .open("minutes.md")?;
-
-    write!(file, "{}", formatted_minutes)?;
+    // Remove the file if it exists, then write the formatted minutes to it
+    let _ = fs::remove_file("minutes.md")?;
+    fs::write("minutes.md", formatted_minutes)?;
 
     msg.channel_id
-        .send_files(&context, vec![(&file, "minutes.md")], |m| {
+        .send_files(&context, vec!["minutes.md"], |m| {
             m.content(format!("Meeting minutes for {}", day))
         })?;
 

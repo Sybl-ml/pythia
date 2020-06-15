@@ -34,7 +34,9 @@ const REACTIONS: [&str; 9] = [
 #[command]
 fn poll(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(" ").skip(1).collect();
-    let (title, options) = args.split_first().unwrap();
+    let (title, options) = args
+        .split_first()
+        .ok_or("Invalid number of arguments to !poll")?;
 
     let formatted_options = options
         .iter()
@@ -43,16 +45,13 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
         .collect::<Vec<String>>()
         .join("\n");
 
-    let sent_message = msg
-        .channel_id
-        .send_message(&context, |m| {
-            m.embed(|e| {
-                e.title(title.to_uppercase())
-                    .description(formatted_options)
-                    .colour(Colour::from_rgb(0, 106, 176))
-            })
+    let sent_message = msg.channel_id.send_message(&context, |m| {
+        m.embed(|e| {
+            e.title(title.to_uppercase())
+                .description(formatted_options)
+                .colour(Colour::from_rgb(0, 106, 176))
         })
-        .unwrap();
+    })?;
 
     for reaction in REACTIONS.iter().take(options.len()) {
         sent_message.react(&context, *reaction)?;

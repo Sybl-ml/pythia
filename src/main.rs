@@ -72,7 +72,10 @@ fn poll(context: &mut Context, msg: &Message) -> CommandResult {
 #[command]
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
-    let day: NaiveDate = NaiveDate::parse_from_str(args[0], "%d/%m/%Y")?;
+    let day: NaiveDate = NaiveDate::parse_from_str(
+        args.get(0).ok_or("Insufficient arguments provided.")?,
+        "%d/%m/%Y",
+    )?;
     let messages: Vec<Message> = msg.channel_id.messages(&context, |b| b.limit(1000))?;
 
     let relevant: String = messages
@@ -89,7 +92,7 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
         .rev()
         .collect::<String>();
 
-    let formatted_minutes = format!("# Meeting minutes for {} \n{}", args[0], relevant);
+    let formatted_minutes = format!("# Meeting minutes for {} \n{}", day, relevant);
     let filename = format!("minutes-{}.md", day.format("%Y-%m-%d"));
     let path = Path::new(&filename);
 

@@ -23,8 +23,6 @@ const REACTIONS: [&str; 9] = [
     "\u{38}\u{FE0F}\u{20E3}",
     "\u{39}\u{FE0F}\u{20E3}",
 ];
-/// The ChannelId associated with the server's `#resources` channel.
-const RESOURCES_CHANNEL: ChannelId = ChannelId(719260683782455377);
 
 /// Creates a poll message and sends it to the user.
 ///
@@ -117,7 +115,18 @@ fn resource(context: &mut Context, msg: &Message) -> CommandResult {
         .skip_while(|c| c != &' ')
         .collect::<String>();
 
-    let _sent_message = RESOURCES_CHANNEL
+    let resources_channel: ChannelId = msg
+        .guild_id
+        .unwrap()
+        .channels(&context)
+        .unwrap()
+        .values()
+        .filter(|x| x.name == "resources")
+        .next()
+        .unwrap()
+        .id;
+
+    let _sent_message = resources_channel
         .send_message(&context, |m| {
             m.content(format!(
                 "**{}** submitted the following resource:\n > {}",

@@ -83,16 +83,16 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
         .filter(|x| x.timestamp.naive_local().date() == day)
         .map(|x| {
             format!(
-                "\n{}\t**{}**:\t*{}*\n",
+                "\n{}\t**{}**:\t{}\n",
                 x.timestamp.time().format("%H:%M").to_string(),
                 x.author.name.replace("*", ""),
-                x.content.replace("*", "")
+                x.content
             )
         })
         .rev()
         .collect::<String>();
 
-    let formatted_minutes = format!("**Meeting minutes for {}** \n{}", day, relevant);
+    let formatted_minutes = format!("# Meeting minutes for {} \n{}", day, relevant);
     let filename = format!("minutes-{}.md", day.format("%Y-%m-%d"));
     let path = Path::new(&filename);
 

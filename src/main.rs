@@ -96,8 +96,7 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     let filename = format!("minutes-{}.md", day.format("%Y-%m-%d"));
     let path = Path::new(&filename);
 
-    // Remove the file if it exists, then write the formatted minutes to it
-    let _ = fs::remove_file(&path);
+    // Write the formatted minutes to the file
     fs::write(&path, formatted_minutes)?;
 
     msg.channel_id

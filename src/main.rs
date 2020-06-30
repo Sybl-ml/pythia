@@ -105,6 +105,9 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
             m.content(format!("Meeting minutes for {}", day))
         })?;
 
+    // Delete the file once it has been sent
+    fs::remove_file(&path)?;
+
     Ok(())
 }
 

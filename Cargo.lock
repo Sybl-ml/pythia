@@ -725,6 +725,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "dotenv",
+ "once_cell",
  "serenity",
 ]
 

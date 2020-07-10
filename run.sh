@@ -42,7 +42,7 @@ while true; do
 
 	# Build a release binary and start the bot in the background
 	/root/.cargo/bin/cargo build --release
-	/root/.cargo/bin/cargo run --release >> $PYTHIA_LOG &
+	/root/.cargo/bin/cargo run --release >> $PYTHIA_LOG 2>&1 &
 
 	# Store the process identifier of the bot
 	pid=$!

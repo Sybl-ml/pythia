@@ -17,6 +17,7 @@ fn resource(context: &mut Context, msg: &Message) -> CommandResult {
         .ok_or("Command has no arguments")?;
 
     let resource = &msg.content[first_space + 1..];
+    log::info!("Adding a resource: {}", resource);
 
     let resources_channel: ChannelId = msg
         .guild_id
@@ -34,6 +35,8 @@ fn resource(context: &mut Context, msg: &Message) -> CommandResult {
             resource
         ))
     })?;
+
+    log::info!("Added a message in the relevant #resources channel");
 
     Ok(())
 }

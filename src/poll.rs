@@ -27,9 +27,15 @@ const REACTIONS: [&str; 9] = [
 #[command]
 pub fn poll(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
+
+    log::info!("Executing 'poll' command with args: {:?}", args);
+
     let (title, options) = args
         .split_first()
         .ok_or("Invalid number of arguments to !poll")?;
+
+    log::info!("Poll title: '{}'", title);
+    log::info!("Poll options: {:?}", options);
 
     let formatted_options = options
         .iter()
@@ -46,9 +52,13 @@ pub fn poll(context: &mut Context, msg: &Message) -> CommandResult {
         })
     })?;
 
+    log::info!("Responded with a formatted poll message");
+
     for reaction in REACTIONS.iter().take(options.len()) {
         sent_message.react(&context, *reaction)?;
     }
+
+    log::info!("Added all reactions to the poll");
 
     Ok(())
 }

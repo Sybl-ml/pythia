@@ -17,11 +17,16 @@ use serenity::model::channel::Message;
 #[command]
 fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
+    log::info!("Executing 'minutes' command with args: {:?}", args);
+
     let day: NaiveDate = NaiveDate::parse_from_str(
         args.get(0).ok_or("Insufficient arguments provided.")?,
         "%d/%m/%Y",
     )?;
+    log::info!("Date was interpreted as: {}", day);
+
     let messages: Vec<Message> = msg.channel_id.messages(&context, |b| b.limit(1000))?;
+    log::info!("Number of messages pulled from chat: {}", messages.len());
 
     let relevant: String = messages
         .iter()
@@ -43,6 +48,7 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
 
     // Write the formatted minutes to the file
     fs::write(&path, formatted_minutes)?;
+    log::info!("Wrote the minutes to: {}", &path.display());
 
     msg.channel_id
         .send_files(&context, vec![AttachmentType::Path(&path)], |m| {
@@ -51,6 +57,10 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
 
     // Delete the file once it has been sent
     fs::remove_file(&path)?;
+    log::info!(
+        "After sending, removed the file from disk: {}",
+        &path.display()
+    );
 
     Ok(())
 }

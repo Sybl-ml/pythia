@@ -1,5 +1,5 @@
 use chrono::prelude::Local;
-use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
 use serenity::client::Context;
 use serenity::framework::standard::macros::command;
 use serenity::framework::standard::CommandResult;
@@ -8,9 +8,28 @@ use serenity::model::channel::Message;
 use serenity::model::id::ChannelId;
 use std::fs;
 use std::path::Path;
-use std::sync::Mutex;
 
-static ITEMS: Lazy<Mutex<Vec<String>>> = Lazy::new(|| Mutex::new(Vec::new()));
+#[derive(Serialize, Deserialize, Default)]
+struct Agenda {
+    items: Vec<String>,
+}
+
+impl Agenda {
+    pub fn new() -> Agenda {
+        return Agenda { items: Vec::new() };
+    }
+
+    pub fn from(filename: &str) -> Agenda {
+        let data = fs::read_to_string(filename).unwrap_or_default();
+        return serde_json::from_str(&data).unwrap_or_default();
+    }
+
+    fn save(&self, filename: &str) -> std::io::Result<()> {
+        let path = Path::new(&filename);
+        return fs::write(&path, serde_json::to_string(&self)?);
+    }
+}
+
 const ACKNOWLEDGED: &str = "✅";
 const FAILURE: &str = "❌";
 
@@ -38,12 +57,14 @@ fn agenda(context: &mut Context, msg: &Message) -> CommandResult {
 
     match args[0] {
         "add" => {
-            // Lock the agenda and add the new item
-            ITEMS.lock().unwrap().push(format!(
+            // Load the agenda and add the new item
+            let mut agenda: Agenda = Agenda::from("agenda.json");
+            agenda.items.push(format!(
                 "\n** - {}**\t\t{}",
                 msg.author.name.replace("*", ""),
                 args[1..].join(" ")
             ));
+            agenda.save("agenda.json")?;
 
             // Relay feedback to the user
             msg.react(&context, ACKNOWLEDGED)?;
@@ -61,13 +82,14 @@ fn agenda(context: &mut Context, msg: &Message) -> CommandResult {
 
             // Send the agenda to the `meetings` channel
             meetings_channel.send_message(&context, |m| {
-                if ITEMS.lock().unwrap().len() == 0 {
+                let agenda: Agenda = Agenda::from("agenda.json");
+                if agenda.items.len() == 0 {
                     m.content(format!("**No items recorded** - sorry about that",))
                 } else {
                     m.content(format!(
                         "**Meeting Agenda {}**{}",
                         Local::now().format("%Y-%m-%d"),
-                        ITEMS.lock().unwrap().join("")
+                        agenda.items.join("")
                     ))
                 }
             })?;
@@ -78,7 +100,7 @@ fn agenda(context: &mut Context, msg: &Message) -> CommandResult {
             let formatted_agenda = format!(
                 "# Meeting Agenda {}{}",
                 Local::now().format("%Y-%m-%d"),
-                ITEMS.lock().unwrap().join("")
+                Agenda::from("agenda.json").items.join("")
             );
 
             // Create the agenda file
@@ -98,8 +120,8 @@ fn agenda(context: &mut Context, msg: &Message) -> CommandResult {
             fs::remove_file(&path)?;
         }
         "clear" => {
-            // Lock the agenda and clear its contents
-            ITEMS.lock().unwrap().clear();
+            // Replace the agenda with a default copy
+            Agenda::new().save("agenda.json")?;
 
             // Relay feedback to the user
             msg.react(&context, ACKNOWLEDGED)?;

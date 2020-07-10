@@ -9,7 +9,7 @@ mkdir -p $LOG_DIR
 touch $RUN_LOG $PYTHIA_LOG
 
 # Logs information about the execution of this script to /root/.logs/run.log
-function log {
+log() {
 	echo "$(date "+%Y-%m-%d %H:%M:%S") > $1" >> $RUN_LOG
 }
 

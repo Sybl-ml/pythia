@@ -24,9 +24,16 @@ struct Handler;
 impl EventHandler for Handler {}
 
 fn main() -> Result<()> {
+    // Configure the logger
+    pretty_env_logger::formatted_timed_builder()
+        .filter_level(log::LevelFilter::Info)
+        .init();
+
     // Read the token file into environment variables
     dotenv::from_filename("token.env")?;
     let token = std::env::var("token")?;
+
+    log::info!("Initialised Pythia with a token, beginning execution");
 
     // Start the client with the token and the handler struct
     let mut client = Client::new(token, Handler)?;

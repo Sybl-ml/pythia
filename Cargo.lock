@@ -777,8 +777,8 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "dotenv",
- "once_cell",
  "log",
+ "once_cell",
  "pretty_env_logger",
  "serenity",
 ]

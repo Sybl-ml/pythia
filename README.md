@@ -39,7 +39,7 @@ Pythia can perform many tasks to assist project management in a Discord server:
         !resource <item>      records the <item> in the 'resources' channel to make
                               sure it doesn't get lost in discussion
 
-This information can also be retrieved by sending the `!help` command to Pythia
+This information can also be retrieved by sending the `!help` command to Pythia.
 
 ## Development
 
@@ -48,7 +48,7 @@ build`, which will install all the required dependencies.
 
 It expects the Discord token to be found in a file called `token.env`, which
 should be in the root directory of the project. This should contain a single
-line in the form `token=...`
+line in the form `token=<token>`.
 
 ### Discord Setup
 

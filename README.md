@@ -9,6 +9,38 @@ It is named after [Pythia](https://en.wikipedia.org/wiki/Pythia), who was the
 functionality such as poll creation, meeting minute recording, agenda
 management and resource cataloguing.
 
+## Usage
+
+Pythia uses the `!` command prefix and will not respond to any other messages.
+
+`usage: !<command> [<args>]`
+
+Pythia can perform many tasks to assist project management in a Discord server:
+
+ - Manage the **agenda** of a future meeting:
+
+		!agenda add <item>    add an <item> to the current agenda
+		!agenda show          send the agenda in the 'meetings' channel
+		!agenda export        export the agenda as a markdown file
+		!agenda clear         clear the agenda
+
+ - Collate meeting **minutes** for a given day:
+
+        !minutes <date>       export the messages sent in the 'meetings' channel on
+                              the date <date> (D/M/Y) as a formatted markdown file
+
+ - Create a **poll** message:
+
+        !poll <title> <args>  creates a poll message with title <title> and options
+                              <args>, up to a maximum of 10 arguments
+
+ - Record a useful **resource** for future reference:
+
+        !resource <item>      records the <item> in the 'resources' channel to make
+                              sure it doesn't get lost in discussion
+
+This information can also be retrieved by sending the `!help` command to Pythia
+
 ## Development
 
 The bot can be built by cloning the repository and building it using `cargo

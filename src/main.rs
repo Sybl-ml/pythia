@@ -5,11 +5,13 @@ use serenity::prelude::EventHandler;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
+mod help;
 mod agenda;
 mod minutes;
 mod poll;
 mod resource;
 
+use help::HELP_COMMAND;
 use agenda::AGENDA_COMMAND;
 use minutes::MINUTES_COMMAND;
 use poll::POLL_COMMAND;
@@ -19,7 +21,7 @@ use resource::RESOURCE_COMMAND;
 const PREFIX: &str = "!";
 
 #[group]
-#[commands(minutes, poll, resource, agenda)]
+#[commands(help, minutes, poll, resource, agenda)]
 struct General;
 struct Handler;
 

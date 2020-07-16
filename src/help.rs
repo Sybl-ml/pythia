@@ -34,9 +34,8 @@ Record a useful **resource** for future reference:
 /// help message explaining Pythia commands.
 #[command]
 fn help(context: &mut Context, msg: &Message) -> CommandResult {
-    msg.channel_id.send_message(&context, |m| {
-        m.content(DOCUMENTATION)
-    })?;
+    msg.channel_id
+        .send_message(&context, |m| m.content(DOCUMENTATION))?;
 
     Ok(())
 }

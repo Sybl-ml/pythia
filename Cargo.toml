@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 dotenv = "0.15"
 serenity = "0.8"
-chrono = "0.4.13"
+chrono = "0.4.15"
 log = "0.4.11"
 pretty_env_logger = "0.4.0"
 serde = "1.0.115"

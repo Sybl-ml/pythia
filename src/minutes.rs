@@ -15,7 +15,7 @@ use serenity::model::channel::Message;
 /// collect the messages sent on that date and format them into a structured Markdown document,
 /// before sending it back to the caller.
 #[command]
-fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
+async fn minutes(context: &Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
     log::info!("Executing 'minutes' command with args: {:?}", args);
 
@@ -25,7 +25,7 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     )?;
     log::info!("Date was interpreted as: {}", day);
 
-    let messages: Vec<Message> = msg.channel_id.messages(&context, |b| b.limit(1000))?;
+    let messages: Vec<Message> = msg.channel_id.messages(&context, |b| b.limit(1000)).await?;
     log::info!("Number of messages pulled from chat: {}", messages.len());
 
     let relevant: String = messages
@@ -53,7 +53,8 @@ fn minutes(context: &mut Context, msg: &Message) -> CommandResult {
     msg.channel_id
         .send_files(&context, vec![AttachmentType::Path(&path)], |m| {
             m.content(format!("Meeting minutes for {}", day))
-        })?;
+        })
+        .await?;
 
     // Delete the file once it has been sent
     fs::remove_file(&path)?;

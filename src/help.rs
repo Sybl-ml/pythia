@@ -33,9 +33,10 @@ Record a useful **resource** for future reference:
 /// Given the command `!help`, this handler will send a useful, formatted
 /// help message explaining Pythia commands.
 #[command]
-fn help(context: &mut Context, msg: &Message) -> CommandResult {
+async fn help(context: &Context, msg: &Message) -> CommandResult {
     msg.channel_id
-        .send_message(&context, |m| m.content(DOCUMENTATION))?;
+        .send_message(&context, |m| m.content(DOCUMENTATION))
+        .await?;
 
     Ok(())
 }

@@ -1,7 +1,9 @@
+use std::str::FromStr;
+
 use serenity::client::Context;
 use serenity::framework::standard::macros::command;
 use serenity::framework::standard::CommandResult;
-use serenity::model::channel::Message;
+use serenity::model::channel::{Message, ReactionType};
 use serenity::utils::Colour;
 
 /// Unicode encodings for the emojis 1-9 to react with on poll messages.
@@ -25,7 +27,7 @@ const REACTIONS: [&str; 9] = [
 /// Poll messages use an embedded message for nicer formatting, and add reactions for each option
 /// that the poll provides.
 #[command]
-pub fn poll(context: &mut Context, msg: &Message) -> CommandResult {
+async fn poll(context: &Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
 
     log::info!("Executing 'poll' command with args: {:?}", args);
@@ -44,18 +46,22 @@ pub fn poll(context: &mut Context, msg: &Message) -> CommandResult {
         .collect::<Vec<String>>()
         .join("\n");
 
-    let sent_message = msg.channel_id.send_message(&context, |m| {
-        m.embed(|e| {
-            e.title(title.to_uppercase())
-                .description(formatted_options)
-                .colour(Colour::from_rgb(0, 106, 176))
+    let sent_message = msg
+        .channel_id
+        .send_message(&context, |m| {
+            m.embed(|e| {
+                e.title(title.to_uppercase())
+                    .description(formatted_options)
+                    .colour(Colour::from_rgb(0, 106, 176))
+            })
         })
-    })?;
+        .await?;
 
     log::info!("Responded with a formatted poll message");
 
-    for reaction in REACTIONS.iter().take(options.len()) {
-        sent_message.react(&context, *reaction)?;
+    for emoji in REACTIONS.iter().take(options.len()) {
+        let reaction = ReactionType::from_str(emoji)?;
+        sent_message.react(&context, reaction).await?;
     }
 
     log::info!("Added all reactions to the poll");

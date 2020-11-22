@@ -27,11 +27,10 @@ struct Handler;
 
 impl EventHandler for Handler {}
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     // Configure the logger
-    pretty_env_logger::formatted_timed_builder()
-        .filter_level(log::LevelFilter::Info)
-        .init();
+    pretty_env_logger::formatted_timed_builder().init();
 
     // Read the token file into environment variables
     dotenv::from_filename("token.env")?;
@@ -40,13 +39,16 @@ fn main() -> Result<()> {
     log::info!("Initialised Pythia with a token, beginning execution");
 
     // Start the client with the token and the handler struct
-    let mut client = Client::new(token, Handler)?;
-    client.with_framework(
-        StandardFramework::new()
-            .configure(|c| c.prefix(PREFIX))
-            .group(&GENERAL_GROUP),
-    );
-    client.start()?;
+    let mut client = Client::builder(token)
+        .event_handler(Handler)
+        .framework(
+            StandardFramework::new()
+                .configure(|c| c.prefix(PREFIX))
+                .group(&GENERAL_GROUP),
+        )
+        .await?;
+
+    client.start().await?;
 
     Ok(())
 }

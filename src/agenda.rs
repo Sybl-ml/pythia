@@ -51,8 +51,8 @@ impl fmt::Display for Agenda {
     }
 }
 
-const ACKNOWLEDGED: &str = "✅";
-const FAILURE: &str = "❌";
+const ACKNOWLEDGED: char = '✅';
+const FAILURE: char = '❌';
 
 /// Controls the agenda of the next team meeting
 ///
@@ -72,7 +72,7 @@ const FAILURE: &str = "❌";
 /// the sub-command does not cause an immediate result (e.g. add, clear). A
 /// failure reaction is used to show that the sub-command was not recognised.
 #[command]
-fn agenda(context: &mut Context, msg: &Message) -> CommandResult {
+async fn agenda(context: &Context, msg: &Message) -> CommandResult {
     // Collect the sub-command and arguments
     let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
     log::info!("Executing 'agenda' command with args: {:?}", args);
@@ -85,32 +85,36 @@ fn agenda(context: &mut Context, msg: &Message) -> CommandResult {
             agenda.save("agenda.json")?;
 
             // Relay feedback to the user
-            msg.react(&context, ACKNOWLEDGED)?;
+            msg.react(&context, ACKNOWLEDGED).await?;
         }
         "show" | "view" => {
             // Identify the target `meetings` channel
             let meetings_channel: ChannelId = msg
                 .guild_id
                 .ok_or("Message occurred outside of a Guild environment.")?
-                .channels(&context)?
+                .channels(&context)
+                .await?
                 .values()
                 .find(|x| x.name == "meetings")
                 .ok_or("Failed to find a channel with the name: 'meetings'")?
                 .id;
 
             // Send the agenda to the `meetings` channel
-            meetings_channel.send_message(&context, |m| {
-                let agenda: Agenda = Agenda::from("agenda.json");
-                if agenda.is_empty() {
-                    m.content("**No items recorded** - sorry about that")
-                } else {
-                    m.content(format!(
-                        "**Meeting Agenda {}**{}",
-                        Local::now().format("%Y-%m-%d"),
-                        agenda
-                    ))
-                }
-            })?;
+            meetings_channel
+                .send_message(&context, |m| {
+                    let agenda: Agenda = Agenda::from("agenda.json");
+
+                    if agenda.is_empty() {
+                        m.content("**No items recorded** - sorry about that")
+                    } else {
+                        m.content(format!(
+                            "**Meeting Agenda {}**{}",
+                            Local::now().format("%Y-%m-%d"),
+                            agenda
+                        ))
+                    }
+                })
+                .await?;
         }
         "export" => {
             // Translate the agenda to a markdown format
@@ -132,7 +136,8 @@ fn agenda(context: &mut Context, msg: &Message) -> CommandResult {
             msg.channel_id
                 .send_files(&context, vec![AttachmentType::Path(&path)], |m| {
                     m.content(format!("**Meeting Agenda {}\n**", today))
-                })?;
+                })
+                .await?;
 
             // Delete the file once it has been sent
             fs::remove_file(&path)?;
@@ -145,11 +150,11 @@ fn agenda(context: &mut Context, msg: &Message) -> CommandResult {
             Agenda::new().save("agenda.json")?;
 
             // Relay feedback to the user
-            msg.react(&context, ACKNOWLEDGED)?;
+            msg.react(&context, ACKNOWLEDGED).await?;
         }
         _ => {
             // Relay the failure of the sub-command to the user
-            msg.react(&context, FAILURE)?;
+            msg.react(&context, FAILURE).await?;
             log::info!(
                 "{} sent an unrecognised sub-command {} for 'agenda'",
                 msg.author.name,

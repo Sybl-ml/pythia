@@ -9,7 +9,7 @@ use serenity::model::id::ChannelId;
 /// Given the command `!resource <message>`, this handler will forward <message> to the
 /// `#resources` channel with a short preamble.
 #[command]
-fn resource(context: &mut Context, msg: &Message) -> CommandResult {
+async fn resource(context: &Context, msg: &Message) -> CommandResult {
     let first_space = msg
         .content
         .chars()
@@ -22,19 +22,22 @@ fn resource(context: &mut Context, msg: &Message) -> CommandResult {
     let resources_channel: ChannelId = msg
         .guild_id
         .ok_or("Message occurred outside of a Guild environment.")?
-        .channels(&context)?
+        .channels(&context)
+        .await?
         .values()
         .find(|x| x.name == "resources")
         .ok_or("Failed to find a channel with the name: 'resources'")?
         .id;
 
-    resources_channel.send_message(&context, |m| {
-        m.content(format!(
-            "**{}** submitted the following resource:\n> {}",
-            msg.author.name.replace("*", ""),
-            resource
-        ))
-    })?;
+    resources_channel
+        .send_message(&context, |m| {
+            m.content(format!(
+                "**{}** submitted the following resource:\n> {}",
+                msg.author.name.replace("*", ""),
+                resource
+            ))
+        })
+        .await?;
 
     log::info!("Added a message in the relevant #resources channel");
 

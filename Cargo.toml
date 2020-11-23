@@ -16,5 +16,5 @@ serde = "1.0.117"
 serde_json = "1.0.59"
 
 [dependencies.tokio]
-version = "0.2"
+version = "0.3"
 features = ["macros"]

@@ -48,25 +48,23 @@ async fn poll(context: &Context, msg: &Message) -> CommandResult {
         .collect::<Vec<String>>()
         .join("\n");
 
-    let sent_message = msg
-        .channel_id
+    msg.channel_id
         .send_message(&context, |m| {
             m.embed(|e| {
                 e.title(title.to_uppercase())
                     .description(formatted_options)
                     .colour(Colour::from_rgb(0, 106, 176))
             })
+            .reactions(
+                REACTIONS
+                    .iter()
+                    .take(options.len())
+                    .map(|s| ReactionType::from_str(s).unwrap()),
+            )
         })
         .await?;
 
     log::info!("Responded with a formatted poll message");
-
-    for emoji in REACTIONS.iter().take(options.len()) {
-        let reaction = ReactionType::from_str(emoji)?;
-        sent_message.react(&context, reaction).await?;
-    }
-
-    log::info!("Added all reactions to the poll");
 
     Ok(())
 }

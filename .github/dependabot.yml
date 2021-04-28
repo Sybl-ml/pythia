@@ -1,0 +1,14 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: monthly
+  open-pull-requests-limit: 10
+  target-branch: develop
+  reviewers:
+  - alexander-jackson
+  ignore:
+  - dependency-name: serde_json
+    versions:
+    - 1.0.64

@@ -12,7 +12,7 @@ serenity = "0.10"
 chrono = "0.4.19"
 log = "0.4.14"
 serde_json = "1.0.64"
-serde = "1.0.123"
+serde = "1.0.125"
 
 [dependencies.tokio]
 version = "1.2.0"

@@ -44,7 +44,7 @@ async fn main() -> Result<()> {
     setup_logger("pythia");
 
     // Read the token file into environment variables
-    dotenv::from_filename("token.env")?;
+    dotenv::from_filename("token.env").ok();
     let token = std::env::var("token")?;
 
     log::info!("Initialised Pythia with a token, beginning execution");

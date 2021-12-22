@@ -8,14 +8,14 @@ edition = "2018"
 
 [dependencies]
 dotenv = "0.15.0"
-serenity = "0.10.8"
+serenity = "0.10.9"
 chrono = "0.4.19"
 log = "0.4.14"
-serde_json = "1.0.64"
-serde = "1.0.126"
+serde_json = "1.0.73"
+serde = "1.0.132"
 
 [dependencies.tokio]
-version = "1.8.0"
+version = "1.15.0"
 features = ["macros", "rt-multi-thread"]
 
 [dependencies.fern]

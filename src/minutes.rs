@@ -51,7 +51,7 @@ async fn minutes(context: &Context, msg: &Message) -> CommandResult {
     log::info!("Wrote the minutes to: {}", &path.display());
 
     msg.channel_id
-        .send_files(&context, vec![AttachmentType::Path(&path)], |m| {
+        .send_files(&context, vec![AttachmentType::Path(path)], |m| {
             m.content(format!("Meeting minutes for {}", day))
         })
         .await?;

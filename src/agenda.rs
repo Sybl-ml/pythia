@@ -134,7 +134,7 @@ async fn agenda(context: &Context, msg: &Message) -> CommandResult {
 
             // Send the file as an attachment to the `msg` source channel
             msg.channel_id
-                .send_files(&context, vec![AttachmentType::Path(&path)], |m| {
+                .send_files(&context, vec![AttachmentType::Path(path)], |m| {
                     m.content(format!("**Meeting Agenda {}\n**", today))
                 })
                 .await?;

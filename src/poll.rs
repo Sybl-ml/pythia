@@ -32,7 +32,7 @@ const REACTIONS: [&str; 9] = [
 async fn poll(context: &Context, msg: &Message) -> CommandResult {
     let args = arglexer::lex_args(&msg.content);
 
-    tracing::info!(?args, "Executing a 'poll' command");
+    tracing::info!(?args, user = %msg.author.id, "Executing a 'poll' command");
 
     let (title, options) = args
         .split_first()

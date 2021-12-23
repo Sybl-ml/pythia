@@ -38,8 +38,7 @@ async fn poll(context: &Context, msg: &Message) -> CommandResult {
         .split_first()
         .ok_or("Invalid number of arguments to !poll")?;
 
-    log::info!("Poll title: '{}'", title);
-    log::info!("Poll options: {:?}", options);
+    log::info!("Poll title: '{}', poll options: {:?}", title, options);
 
     let formatted_options = options
         .iter()

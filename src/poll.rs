@@ -32,13 +32,13 @@ const REACTIONS: [&str; 9] = [
 async fn poll(context: &Context, msg: &Message) -> CommandResult {
     let args = arglexer::lex_args(&msg.content);
 
-    log::info!("Executing 'poll' command with args: {:?}", args);
+    tracing::info!(?args, "Executing a 'poll' command");
 
     let (title, options) = args
         .split_first()
         .ok_or("Invalid number of arguments to !poll")?;
 
-    log::info!("Poll title: '{}', poll options: {:?}", title, options);
+    tracing::info!(%title, ?options, "Parsed some arguments to the command");
 
     let formatted_options = options
         .iter()
@@ -63,7 +63,7 @@ async fn poll(context: &Context, msg: &Message) -> CommandResult {
         })
         .await?;
 
-    log::info!("Responded with a formatted poll message");
+    tracing::info!("Responded with a formatted poll message");
 
     Ok(())
 }

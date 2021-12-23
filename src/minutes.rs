@@ -17,16 +17,16 @@ use serenity::model::channel::Message;
 #[command]
 async fn minutes(context: &Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
-    log::info!("Executing 'minutes' command with args: {:?}", args);
+    tracing::info!(?args, "Executing a 'minutes' command");
 
     let day: NaiveDate = NaiveDate::parse_from_str(
         args.get(0).ok_or("Insufficient arguments provided.")?,
         "%d/%m/%Y",
     )?;
-    log::info!("Date was interpreted as: {}", day);
+    tracing::info!(?day, "Parsed a date from the message");
 
     let messages: Vec<Message> = msg.channel_id.messages(&context, |b| b.limit(1000)).await?;
-    log::info!("Number of messages pulled from chat: {}", messages.len());
+    tracing::debug!(count = %messages.len(), "Queried some messages from the API");
 
     let relevant: String = messages
         .iter()
@@ -48,7 +48,7 @@ async fn minutes(context: &Context, msg: &Message) -> CommandResult {
 
     // Write the formatted minutes to the file
     fs::write(&path, formatted_minutes)?;
-    log::info!("Wrote the minutes to: {}", &path.display());
+    tracing::debug!(path = %path.display(), "Wrote some minutes to disk");
 
     msg.channel_id
         .send_files(&context, vec![AttachmentType::Path(path)], |m| {
@@ -58,10 +58,7 @@ async fn minutes(context: &Context, msg: &Message) -> CommandResult {
 
     // Delete the file once it has been sent
     fs::remove_file(&path)?;
-    log::info!(
-        "After sending, removed the file from disk: {}",
-        &path.display()
-    );
+    tracing::debug!(path = %path.display(), "Deleted a file from disk after sending it");
 
     Ok(())
 }

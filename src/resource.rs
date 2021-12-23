@@ -17,7 +17,7 @@ async fn resource(context: &Context, msg: &Message) -> CommandResult {
         .ok_or("Command has no arguments")?;
 
     let resource = &msg.content[first_space + 1..];
-    log::info!("Adding a resource: {}", resource);
+    tracing::info!(resource_link = %resource, "Adding a resource to the channel");
 
     let resources_channel: ChannelId = msg
         .guild_id
@@ -39,7 +39,7 @@ async fn resource(context: &Context, msg: &Message) -> CommandResult {
         })
         .await?;
 
-    log::info!("Added a message in the relevant #resources channel");
+    tracing::info!("Added a message in the relevant #resources channel");
 
     Ok(())
 }

@@ -10,14 +10,11 @@ edition = "2018"
 dotenv = "0.15.0"
 serenity = "0.10.9"
 chrono = "0.4.19"
-log = "0.4.14"
 serde_json = "1.0.73"
 serde = "1.0.132"
+tracing = "0.1.29"
+tracing-subscriber = { version = "0.3.3", features = ["env-filter"] }
 
 [dependencies.tokio]
 version = "1.15.0"
 features = ["macros", "rt-multi-thread"]
-
-[dependencies.fern]
-version = "0.6.0"
-features = ["colored"]

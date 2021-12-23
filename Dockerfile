@@ -1,5 +1,4 @@
-FROM rust:latest AS chef
-RUN cargo install cargo-chef
+FROM lukemathwalker/cargo-chef:latest-rust-latest AS chef
 WORKDIR app
 
 FROM chef AS planner

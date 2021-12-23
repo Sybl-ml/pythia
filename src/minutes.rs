@@ -17,7 +17,7 @@ use serenity::model::channel::Message;
 #[command]
 async fn minutes(context: &Context, msg: &Message) -> CommandResult {
     let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
-    tracing::info!(?args, "Executing a 'minutes' command");
+    tracing::info!(?args, user = %msg.author.id, "Executing an 'minutes' command");
 
     let day: NaiveDate = NaiveDate::parse_from_str(
         args.get(0).ok_or("Insufficient arguments provided.")?,

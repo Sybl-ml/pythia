@@ -75,7 +75,7 @@ const FAILURE: char = '❌';
 async fn agenda(context: &Context, msg: &Message) -> CommandResult {
     // Collect the sub-command and arguments
     let args: Vec<&str> = msg.content.split(' ').skip(1).collect();
-    tracing::info!(?args, "Executing an 'agenda' command");
+    tracing::info!(?args, user = %msg.author.id, "Executing an 'agenda' command");
 
     match args[0] {
         "add" | "append" | "push" => {
@@ -144,7 +144,7 @@ async fn agenda(context: &Context, msg: &Message) -> CommandResult {
         }
         "clear" | "new" => {
             // Log the event
-            tracing::info!(user = %msg.author.name, "Cleared the agenda");
+            tracing::info!(user = %msg.author.id, "Cleared the agenda");
 
             // Replace the agenda with a default copy
             Agenda::new().save("agenda.json")?;
@@ -155,7 +155,7 @@ async fn agenda(context: &Context, msg: &Message) -> CommandResult {
         _ => {
             // Relay the failure of the sub-command to the user
             msg.react(&context, FAILURE).await?;
-            tracing::debug!(user = %msg.author.name, command = %args[0], "Unrecognised sub-command for 'agenda'");
+            tracing::debug!(user = %msg.author.id, command = %args[0], "Unrecognised sub-command for 'agenda'");
         }
     }
 

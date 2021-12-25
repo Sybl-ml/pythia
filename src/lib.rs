@@ -2,7 +2,6 @@ use serenity::framework::standard::macros::group;
 use serenity::prelude::EventHandler;
 
 mod agenda;
-mod arglexer;
 mod help;
 mod minutes;
 mod poll;

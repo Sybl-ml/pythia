@@ -2,11 +2,9 @@ use std::str::FromStr;
 
 use serenity::client::Context;
 use serenity::framework::standard::macros::command;
-use serenity::framework::standard::CommandResult;
+use serenity::framework::standard::{Args, CommandResult};
 use serenity::model::channel::{Message, ReactionType};
 use serenity::utils::Colour;
-
-use crate::arglexer;
 
 /// Unicode encodings for the emojis 1-9 to react with on poll messages.
 const REACTIONS: [&str; 9] = [
@@ -29,8 +27,8 @@ const REACTIONS: [&str; 9] = [
 /// Poll messages use an embedded message for nicer formatting, and add reactions for each option
 /// that the poll provides.
 #[command]
-async fn poll(context: &Context, msg: &Message) -> CommandResult {
-    let args = arglexer::lex_args(&msg.content);
+async fn poll(context: &Context, msg: &Message, args: Args) -> CommandResult {
+    let args: Vec<_> = args.raw_quoted().collect();
 
     tracing::info!(?args, user = %msg.author.id, "Executing a 'poll' command");
 
